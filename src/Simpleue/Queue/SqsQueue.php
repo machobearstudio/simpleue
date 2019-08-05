@@ -142,6 +142,10 @@ class SqsQueue implements Queue {
         return;
     }
 
+    public function resend($job) {
+        return;
+    }
+
     public function stopped($job) {
         $this->deleteMessage($this->sourceQueueUrl, $job['ReceiptHandle']);
         return;

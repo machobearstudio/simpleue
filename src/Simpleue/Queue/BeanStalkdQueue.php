@@ -70,6 +70,10 @@ class BeanStalkdQueue implements Queue
         return;
     }
 
+    public function resend($job) {
+        return;
+    }
+
     public function stopped($job)
     {
         return $this->beanStalkdClient->delete($job);

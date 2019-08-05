@@ -18,5 +18,6 @@ interface Queue {
     public function getMessageBody($job);
     public function toString($job);
     public function sendJob($job);
+    public function resend($job);
 
 }

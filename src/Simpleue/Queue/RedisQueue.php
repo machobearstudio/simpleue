@@ -61,6 +61,12 @@ class RedisQueue implements Queue {
         $this->redisClient->ping();
     }
 
+    public function resend($job) {
+        $this->redisClient->lrem($this->getProcessingQueue(), 1, $job);
+        $this->redisClient->lpush($this->getSourceQueue(), $job);
+        return;
+    }
+
     public function stopped($job) {
         $this->redisClient->lrem($this->getProcessingQueue(), 1, $job);
         return;

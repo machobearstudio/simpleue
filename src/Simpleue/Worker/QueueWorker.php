@@ -3,8 +3,10 @@
  * User: Javier Bravo
  * Date: 9/01/15.
  */
+
 namespace Simpleue\Worker;
 
+use Simpleue\Exception\JobMustBeResentException;
 use Simpleue\Queue\Queue;
 use Simpleue\Job\Job;
 use Psr\Log\LoggerInterface;
@@ -22,7 +24,7 @@ class QueueWorker
     {
         $this->queueHandler = $queueHandler;
         $this->jobHandler = $jobHandler;
-        $this->maxIterations = (int) $maxIterations;
+        $this->maxIterations = (int)$maxIterations;
         $this->iterations = 0;
         $this->logger = false;
         $this->terminated = false;
@@ -48,7 +50,7 @@ class QueueWorker
 
     public function setMaxIterations($maxIterations)
     {
-        $this->maxIterations = (int) $maxIterations;
+        $this->maxIterations = (int)$maxIterations;
 
         return $this;
     }
@@ -70,7 +72,7 @@ class QueueWorker
             try {
                 $job = $this->queueHandler->getNext();
             } catch (\Exception $exception) {
-                $this->log('error', 'Error getting data. Message: '.$exception->getMessage());
+                $this->log('error', 'Error getting data. Message: ' . $exception->getMessage());
                 continue;
             }
             if ($this->isValidJob($job) && $this->jobHandler->isMyJob($this->queueHandler->getMessageBody($job))) {
@@ -130,9 +132,9 @@ class QueueWorker
             throw new \Exception('Please make sure that \'pcntl\' is enabled if you want us to handle signals');
         }
 
-        declare(ticks = 1);
+        declare(ticks=1);
         pcntl_signal(SIGTERM, [$this, 'terminate']);
-        pcntl_signal(SIGINT,  [$this, 'terminate']);
+        pcntl_signal(SIGINT, [$this, 'terminate']);
 
         $this->log('debug', 'Finished Setting up Handler for signals SIGTERM and SIGINT');
     }
@@ -148,14 +150,17 @@ class QueueWorker
         try {
             $jobDone = $this->jobHandler->manage($this->queueHandler->getMessageBody($job));
             if ($jobDone) {
-                $this->log('debug', 'Successful Job: '.$this->queueHandler->toString($job));
+                $this->log('debug', 'Successful Job: ' . $this->queueHandler->toString($job));
                 $this->queueHandler->successful($job);
             } else {
-                $this->log('debug', 'Failed Job:'.$this->queueHandler->toString($job));
+                $this->log('debug', 'Failed Job:' . $this->queueHandler->toString($job));
                 $this->queueHandler->failed($job);
             }
+        } catch (JobMustBeResentException $exception) {
+            $this->log('warning', 'Job must be resent. Data :' . $this->queueHandler->toString($job) . '. Message: ' . $exception->getMessage());
+            $this->queueHandler->resend($job);
         } catch (\Exception $exception) {
-            $this->log('error', 'Error Managing data. Data :'.$this->queueHandler->toString($job).'. Message: '.$exception->getMessage());
+            $this->log('error', 'Error Managing data. Data :' . $this->queueHandler->toString($job) . '. Message: ' . $exception->getMessage());
             $this->queueHandler->error($job);
         }
     }
