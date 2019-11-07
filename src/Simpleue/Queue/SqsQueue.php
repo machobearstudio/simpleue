@@ -25,7 +25,7 @@ class SqsQueue implements Queue
     private $errorQueueUrl;
     private $maxWaitingSeconds;
     private $visibilityTimeout;
-    private $batchSize;
+    private $maxBatchSize = 10;
     /**
      * @var BaseLocker
      */
@@ -206,9 +206,9 @@ class SqsQueue implements Queue
             );
         }
 
-        if (count($jobs) > $this->batchSize) {
+        if (count($jobs) > $this->maxBatchSize) {
             throw new MaxJobBatchSizeException(
-                "Jobs param has jobs more than supported batch size (" . $this->batchSize . ")"
+                "Jobs param has jobs more than supported batch size (" . $this->maxBatchSize . ")"
             );
         }
 
