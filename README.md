@@ -237,7 +237,7 @@ $myConsumer->start();
 **AWS SQS Job Locking to Prevent Duplication**
 
 When using AWS SQS Standart Queue, sometimes workers can get duplicated messages even if MessageVisibilityTimeout given.
-To prevent this duplication, you can give Redis or Memcached Locker to SqsQueue object. If you proived locker object and lock failed, job sent to error queue.
+To prevent this duplication, you can give Redis Locker to SqsQueue object. If you proived locker object and lock failed, job sent to error queue.
 Locker provider does not remove/unlock job. If required, you should unlock manually. You can get job key with **getJobUniqId** method.
  
 ```php
@@ -245,13 +245,13 @@ Locker provider does not remove/unlock job. If required, you should unlock manua
 
 use Aws\Sqs\SqsClient;
 use Simpleue\Queue\SqsQueue;
-use Simpleue\Locker\MemcachedLocker;
+use Simpleue\Locker\RedisLocker;
 use Simpleue\Worker\QueueWorker;
 use MyProject\MyJob;
 
-$memcached = new \Memcached();
-$memcached->addServer('localhost', 11211);
-$memcachedLocker = new MemcachedLocker($memcached);
+$redis = new \Redis();
+$redis->addServer('localhost');
+$redisLocker = new RedisLocker($redis);
 
 $sqsClient = new SqsClient([
     'profile' => 'aws-profile',
@@ -260,7 +260,7 @@ $sqsClient = new SqsClient([
 ]);
 
 $sqsQueue = new SqsQueue($sqsClient, 'my_queue_name', 20, 30);
-$sqsQueue->setLocker($memcachedLocker);
+$sqsQueue->setLocker($redisLocker);
 
 $myNewConsumer = new QueueWorker($sqsQueue, new MyJob());
 $myNewConsumer->start();
