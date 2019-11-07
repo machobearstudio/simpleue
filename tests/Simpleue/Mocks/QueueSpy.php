@@ -8,7 +8,8 @@ namespace Simpleue\Mocks;
 
 use Simpleue\Queue\Queue;
 
-class QueueSpy implements Queue {
+class QueueSpy implements Queue
+{
 
     public $getNextCounter;
     public $successfulCounter;
@@ -18,7 +19,8 @@ class QueueSpy implements Queue {
     public $stoppedCounter;
     public $getMessageBodyCounter;
 
-    public function _construct() {
+    public function _construct()
+    {
         $this->getNextCounter = 0;
         $this->successfulCounter = 0;
         $this->failedCounter = 0;
@@ -27,46 +29,60 @@ class QueueSpy implements Queue {
         $this->stoppedCounter = 0;
     }
 
-    public function getNext() {
+    public function getNext()
+    {
         $this->getNextCounter++;
-        return rand(0,1000);
+        return rand(0, 1000);
     }
 
-    public function successful($job) {
+    public function successful($job)
+    {
         $this->successfulCounter++;
         return;
     }
 
-    public function failed($job) {
+    public function failed($job)
+    {
         $this->failedCounter++;
         return $job;
     }
 
-    public function error($job) {
+    public function error($job)
+    {
         $this->errorCounter++;
         return $job;
     }
 
-    public function nothingToDo() {
+    public function nothingToDo()
+    {
         $this->nothingToDoCounter++;
         return;
     }
 
-    public function stopped($job) {
+    public function stopped($job)
+    {
         $this->stoppedCounter++;
         return;
     }
 
-    public function getMessageBody($job) {
+    public function getMessageBody($job)
+    {
         $this->getMessageBodyCounter++;
         return $job;
     }
 
-    public function toString($job) {
+    public function toString($job)
+    {
         return $job;
     }
 
-    public function sendJob($job) {
+    public function sendJob($job)
+    {
+        return;
+    }
+
+    public function resend($job)
+    {
         return;
     }
 
