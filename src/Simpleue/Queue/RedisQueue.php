@@ -111,7 +111,7 @@ class RedisQueue implements Queue {
     public function sendJobBatch($jobs)
     {
         if (!is_array($jobs)) {
-            throw new InvalidParameterException("Messages are not array");
+            throw new InvalidParameterException("Jobs param is not array");
         }
 
         foreach ($jobs as $job) {
