@@ -8,6 +8,7 @@ namespace Simpleue\Queue;
 
 use Aws\Sqs\Exception\SqsException;
 use Aws\Sqs\SqsClient;
+use Simpleue\Exception\InvalidParameterException;
 use Simpleue\Locker\BaseLocker;
 
 /*
@@ -21,6 +22,7 @@ class SqsQueue implements Queue {
     private $errorQueueUrl;
     private $maxWaitingSeconds;
     private $visibilityTimeout;
+    private $batchSize;
     /**
      * @var BaseLocker
      */
@@ -161,5 +163,41 @@ class SqsQueue implements Queue {
 
     public function sendJob($job) {
         $this->sendMessage($this->sourceQueueUrl, $job);
+    }
+
+    /**
+     * Jobs must be a string array. jobs array indexes are used as sqs batch id
+     * The number of jobs must be 10 or less
+     *
+     * @param string[] $jobs
+     *
+     * @throws InvalidParameterException
+     */
+    public function sendJobBatch($jobs)
+    {
+        if (!is_array($jobs) || count($jobs) > $this->batchSize) {
+            throw new InvalidParameterException(
+                "Messages are not array or batch size not suitable"
+            );
+        }
+
+        $batchJob = [];
+        foreach ($jobs as $key => $job) {
+            $batchJob[] = ["Id" => $key, "MessageBody" => $job];
+        }
+
+        $this->sendMessageBatch($batchJob);
+    }
+
+
+    /**
+     * @param array $batchJob
+     */
+    private function sendMessageBatch($batchJob)
+    {
+        $this->sqsClient->sendMessageBatch([
+            'QueueUrl' => $this->sourceQueueUrl,
+            'Entries' => $batchJob
+        ]);
     }
 }

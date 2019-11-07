@@ -7,6 +7,7 @@
 namespace Simpleue\Queue;
 
 use Predis\Client;
+use Simpleue\Exception\InvalidParameterException;
 
 class RedisQueue implements Queue {
 
@@ -100,4 +101,21 @@ class RedisQueue implements Queue {
         $this->redisClient->lpush($this->getSourceQueue(), $job);
     }
 
+    /**
+     * Jobs must be a string array.
+     *
+     * @param string[] $jobs
+     *
+     * @throws InvalidParameterException
+     */
+    public function sendJobBatch($jobs)
+    {
+        if (!is_array($jobs)) {
+            throw new InvalidParameterException("Messages are not array");
+        }
+
+        foreach ($jobs as $job) {
+            $this->sendJob($job);
+        }
+    }
 }

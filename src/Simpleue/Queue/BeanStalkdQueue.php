@@ -4,6 +4,7 @@ namespace Simpleue\Queue;
 
 use Pheanstalk\Job;
 use Pheanstalk\Pheanstalk;
+use Simpleue\Exception\InvalidParameterException;
 
 /**
  * Class BeanstalkdQueue
@@ -56,6 +57,7 @@ class BeanStalkdQueue implements Queue
 
     /**
      * @param $job Job
+     *
      * @return int
      */
     public function error($job)
@@ -70,7 +72,8 @@ class BeanStalkdQueue implements Queue
         return;
     }
 
-    public function resend($job) {
+    public function resend($job)
+    {
         return;
     }
 
@@ -104,5 +107,23 @@ class BeanStalkdQueue implements Queue
     public function sendJob($job)
     {
         return $this->beanStalkdClient->putInTube($this->sourceQueue, $job);
+    }
+
+    /**
+     * Jobs must be a string array.
+     *
+     * @param string[] $jobs
+     *
+     * @throws InvalidParameterException
+     */
+    public function sendJobBatch($jobs)
+    {
+        if (!is_array($jobs)) {
+            throw new InvalidParameterException("Messages are not array");
+        }
+
+        foreach ($jobs as $job) {
+            $this->sendJob($job);
+        }
     }
 }
