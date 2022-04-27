@@ -127,6 +127,16 @@ class SqsQueue implements Queue
     {
         $this->deleteMessage($this->sourceQueueUrl, $job['ReceiptHandle']);
     }
+    
+    public function changeMessageVisibility($job, $visibilityTimeout)
+    {
+        $this->sqsClient->changeMessageVisibility([
+            'QueueUrl' => $this->sourceQueueUrl,
+            'ReceiptHandle' => $job['ReceiptHandle'],
+            'VisibilityTimeout' => $visibilityTimeout
+        ]);
+        return;
+    }
 
     protected function deleteMessage($queueUrl, $messageReceiptHandle)
     {

@@ -11,6 +11,7 @@ interface Queue {
 
     public function getNext();
     public function successful($job);
+    public function changeMessageVisibility($job, $visibilityTimeout);
     public function failed($job);
     public function error($job);
     public function nothingToDo();
