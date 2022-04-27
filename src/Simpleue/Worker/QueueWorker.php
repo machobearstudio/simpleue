@@ -6,6 +6,7 @@
 
 namespace Simpleue\Worker;
 
+use Simpleue\Exception\ChangeMessageVisibilityException;
 use Simpleue\Exception\JobMustBeResentException;
 use Simpleue\Queue\Queue;
 use Simpleue\Job\Job;
@@ -159,6 +160,9 @@ class QueueWorker
         } catch (JobMustBeResentException $exception) {
             $this->log('warning', 'Job must be resent. Data :' . $this->queueHandler->toString($job) . '. Message: ' . $exception->getMessage());
             $this->queueHandler->resend($job);
+        } catch (ChangeMessageVisibilityException $exception) {
+            $this->log('warning', 'Job must be change message visibility. Data :' . $this->queueHandler->toString($job) . '. Message: ' . $exception->getMessage());
+            $this->queueHandler->changeMessageVisibility($job, $exception->getVisibilityTimeout());
         } catch (\Exception $exception) {
             $this->log('error', 'Error Managing data. Data :' . $this->queueHandler->toString($job) . '. Message: ' . $exception->getMessage());
             $this->queueHandler->error($job);
