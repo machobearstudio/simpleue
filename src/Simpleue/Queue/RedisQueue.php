@@ -118,4 +118,9 @@ class RedisQueue implements Queue {
             $this->sendJob($job);
         }
     }
+    
+    public function changeMessageVisibility($job, $visibilityTimeout)
+    {
+        return true;
+    }
 }
