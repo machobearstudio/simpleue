@@ -1,8 +1,8 @@
 {
-    "name": "javibravo/simpleue",
+    "name": "machobearstudio/simpleue",
     "description": "Php package to manage queue tasks in a simple way",
     "keywords": ["queue", "task", "job", "redis", "sqs"],
-    "homepage": "http://github.com/javibravo/simpleue",
+    "homepage": "http://github.com/machobearstudio/simpleue",
     "type": "library",
     "license": "MIT",
     "minimum-stability":"stable",
